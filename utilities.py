@@ -2,20 +2,20 @@ from controller import Motor
 from controller import InertialUnit
 from controller import GPS
 from controller import Gyro
-from controller import Keyboard # Den to exw xrhsimopoihsei akoma, den jerw an 8a xrhsimopoihsoume Keyboard
+from controller import Keyboard 
 import numpy as np
 import math
 
-motor_names = ["m1_motor","m2_motor","m3_motor","m4_motor"] # Etsi legontai ta moterakia genika ston kosmo
+motor_names = ["m1_motor","m2_motor","m3_motor","m4_motor"]
 
-class Sensors: # Class to opoio krataei olous tous ais8hthres
-    def __init__(self,robot, input_sensors): # Auto to kalw san sensors = Sensors(), me boh8aei sthn arxikopoihsh tou antikeimenou
+class Sensors: 
+    def __init__(self,robot, input_sensors): 
         self.sensors = {}
         print(self.sensors)
         for sensor in input_sensors:
             self.sensors[sensor] = robot.getDevice(sensor)
     
-    def enable_sensors(self, timeStep): # Auth h sunarthsh energopoiei ais8hthres kai tous sugxronizei me thn prosomoiwsh me thn periodo deigmatolhpsias 
+    def enable_sensors(self, timeStep): 
         sensors_used = self.sensors.keys()
         for sensor in sensors_used:
             self.sensors[sensor].enable(timeStep)
@@ -26,7 +26,7 @@ class Sensors: # Class to opoio krataei olous tous ais8hthres
             return roll, pitch, yaw
         else:
             return self.sensors[sensor].getValues()[0], self.sensors[sensor].getValues()[1], self.sensors[sensor].getValues()[2]
-class State: # Class to opoio orizei 8eseis
+class State: 
     def __init__(self, x, y, z, roll, pitch, yaw, roll_rate, pitch_rate, yaw_rate):
         self.x = x
         self.y = y
@@ -34,7 +34,7 @@ class State: # Class to opoio orizei 8eseis
         self.roll = roll
         self.pitch = pitch
         self.yaw = yaw
-        self.roll_rate = roll_rate # Sthn pragmatikothta den xreiazetai na uparxei edw, apla mas glutwnei xwro
+        self.roll_rate = roll_rate 
         self.pitch_rate = pitch_rate
         self.yaw_rate = yaw_rate
     
@@ -50,16 +50,16 @@ class State: # Class to opoio orizei 8eseis
             return True
         else:
             return False
-class PID: # Class gia pid. 
+class PID: 
     def __init__(self, robot, kp, ki, kd):
         self.kp = kp
         self.kd = kd
         self.ki = ki
-        self.I = 0 # Gia I kommati
-        self.prev_t = 0 # Gia I kai D kommati
+        self.I = 0 
+        self.prev_t = 0 
         self.t = 0
-        self.prev_e = 0 # Gia I kai D kommati
-        self.robot = robot # Gia na pairnw thn wra me self.robot.getTime() sto give_output()
+        self.prev_e = 0 
+        self.robot = robot 
         
     def give_output(self, error): # Bash tou error 
         self.t = self.prev_t + 0.032
@@ -82,12 +82,12 @@ def resetPIDs(pid_array):
     for pid_key in keys:
         pid_array[pid_key].reset_pid()
       
-def get_crazyflie_motors(robot): # Sunarthsh pou pairnw moterakia
-    global motor_names # Gia na mporw na parw to motor_names array pou orisa sthn grammh 8 tou programmatos. 
-    motor_arr = [] # Array pou krataei ta moterakia, afou ta orisw
-    for i in range(0,len(motor_names)): # Kanw loop sto motor_names gia na parw ka8e onoma
-        motor_arr.append(robot.getDevice(motor_names[i])) # Pairnw to moteraki kai to pernaw sto array
-        motor_arr[i].setPosition(float('inf')) # To arxikopoiw
+def get_crazyflie_motors(robot): 
+    global motor_names 
+    motor_arr = [] 
+    for i in range(0,len(motor_names)): 
+        motor_arr.append(robot.getDevice(motor_names[i])) 
+        motor_arr[i].setPosition(float('inf'))
         motor_arr[i].setVelocity(0)  
     return motor_arr
 
@@ -118,9 +118,9 @@ def transform_state(des_state, curr_state):
     trans_matrix = np.ndarray(first_row,second_row,third_row,fourth_row)
 """
 
-def motor_mixing(motor_arr, curr_state, desired_state, pids): # Petaei to drone me taxuthtes pou upologizontai edw
-    hover_vel = 55.3 # H taxuthta aiwrhshs
-    error_state =  desired_state-curr_state # H apostash apo to epi8umhto z
+def motor_mixing(motor_arr, curr_state, desired_state, pids): 
+    hover_vel = 55.3 
+    error_state =  desired_state-curr_state 
     error_state.x = (desired_state.x - curr_state.x)*math.cos(curr_state.yaw) - (desired_state.y - curr_state.y)*math.sin(curr_state.yaw)
     error_state.y = (desired_state.y - curr_state.y)*math.cos(curr_state.yaw) + (desired_state.x - curr_state.x)*math.sin(curr_state.yaw)
     error_state.print_state()
@@ -142,9 +142,9 @@ def motor_mixing(motor_arr, curr_state, desired_state, pids): # Petaei to drone 
     v4 = clamp(v4,-600,600)
     print("V1: " + str(v1) + " " + "V2: " + str(v2) + " " +"V3: " + str(v3) + " " + "V4: " + str(v4))
     motor_velocities = (v1, v2, v3, v4)
-    set_motor_velocities(motor_arr, *motor_velocities) # Kinw ta motors me tiw taxuthtes
+    set_motor_velocities(motor_arr, *motor_velocities)
     
-def set_motor_velocities(motor_arr, v1, v2, v3, v4): # Apla orizei tis taxuthtes se ka8e motor
+def set_motor_velocities(motor_arr, v1, v2, v3, v4): 
     motor_arr[0].setVelocity(v1)
     motor_arr[1].setVelocity(v2)
     motor_arr[2].setVelocity(v3)
@@ -154,20 +154,20 @@ def euclideanDist(state1,state2):
     return np.sqrt((state1.x-state2.x)**2 + (state1.y-state2.y)**2 + (state1.z-state2.z)**2)
 
 def go_states(robot, motor_arr, sensors, states_arr, dist_offset, yaw_offset, pids, stab_time, stab_dur):
-    curr_state = getState(sensors) # Pare twrinh katastash
-    if len(states_arr) == 0: # An den exeis allh katastash na episkefteis tote apla stamata
-        return True, [], 0 # To True spaei to while
-    if(euclideanDist(curr_state,states_arr[0]) > dist_offset or abs(curr_state.yaw-states_arr[0].yaw) > yaw_offset): # An bgeis ektos prodiagrafwn, tote janarxise to stabilization
-        motor_mixing(motor_arr, curr_state, states_arr[0], pids) # Phgaine sthn prwth katastash pou blepeis
-        return False, states_arr, float(robot.getTime()) # Janarxise to timer gia stabilization
+    curr_state = getState(sensors) 
+    if len(states_arr) == 0: 
+        return True, [], 0 
+    if(euclideanDist(curr_state,states_arr[0]) > dist_offset or abs(curr_state.yaw-states_arr[0].yaw) > yaw_offset): 
+        motor_mixing(motor_arr, curr_state, states_arr[0], pids)
+        return False, states_arr, float(robot.getTime()) 
     else:
-        if(float(robot.getTime()) - stab_time >= stab_dur): # An exei parameinei sthn idia 8esh gia to stabilization duration, tote treje
-            states_arr = states_arr[1:] # Kane pop to prwto state, epestrepse ta upoloipa gia na sunexiseis thn poreia sou
-            print("Attained state") # Control message
+        if(float(robot.getTime()) - stab_time >= stab_dur): 
+            states_arr = states_arr[1:]
+            print("Attained state") 
             resetPIDs(pids)
-            return False, states_arr, float(robot.getTime()) # Epestrepse epomena states kai neo xrono gia na janarxisei to stabilization
+            return False, states_arr, float(robot.getTime()) 
         else:
-            motor_mixing(motor_arr, curr_state, states_arr[0], pids) # Den exeis kanei akoma stabilize, sunexise
+            motor_mixing(motor_arr, curr_state, states_arr[0], pids) 
             return False, states_arr, stab_time
 """
 def land(motors, sensors, pid, offset):
@@ -190,7 +190,7 @@ def land(motors, sensors, pid, offset):
         
     set_motor_velocities(motors, v1, v2, v3, v4)
 """
-def write_state(state): # Boh8htikh sunarthsh gia na tupwnoume to state
+def write_state(state):
     filename = "flight_experiment.txt"
     with open(filename, "a") as results_file:
         results_file.write(str(state.x) + "," + str(state.y) + "," + str(state.z) + "\n")
